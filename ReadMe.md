@@ -1,0 +1,1 @@
+This will be my attempt at created a script to add and remove an Exchange 2016 server to and from maintenance mode.
