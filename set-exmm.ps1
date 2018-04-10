@@ -33,40 +33,40 @@ if ($Action -eq "add")
 {
     write-host "$Server will be put into maintenance mode. Please wait..." -ForegroundColor Green
 
-    write-host "Setting HubTransport service to draining.." -ForegroundColor Blue
+    write-host "`nSetting HubTransport to draining.." -ForegroundColor Blue
     set-servercomponentstate $Server -Component HubTransport -State Draining -Requester maintenance
 
-    write-host "Restarting MSExchangeTransport service..." -ForegroundColor Blue
+    write-host "`nRestarting MSExchangeTransport service..." -ForegroundColor Blue
     Restart-Service MSExchangeTransport
-    write-host "Restarting MSExchangeFrontEndTransport service..." -ForegroundColor Blue
+    write-host "`nRestarting MSExchangeFrontEndTransport service..." -ForegroundColor Blue
     Restart-Service MSExchangeFrontEndTransport
 
-    $moveTo = Read-Host "Enter a FQDN server name to Blueirect messages to"
-    Write-Host "Blueirecting messages from $Server to $moveTo..." -ForegroundColor Blue
+    $moveTo = Read-Host "`n`nEnter the server name to redirect messages through (FQDN)"
+    Write-Host "`nRedirecting messages from $Server to $moveTo..." -ForegroundColor Blue
     Redirect-Message -Server $Server -Target $moveTo -Confirm:$False
 
     $check = get-mailboxserver | fl DatabaseAvailabilityGroup
         if ($check -ne $null)
             {
-                write-host "$Server is a DAG Member. Performing DAG Maintenance Mode proceedure..." -ForegroundColor Blue
-                write-host "Suspending cluster node..." -ForegroundColor Blue
+                write-host "`n$Server is a DAG Member. Performing DAG maintenance mode proceedure..." -ForegroundColor Yellow
+                write-host "`nSuspending cluster node..." -ForegroundColor Blue
                 suspend-clusternode $Server
 
-                write-host "Moving databases to another DAG member..." -ForegroundColor Blue
+                write-host "`nMoving databases to another DAG member..." -ForegroundColor Blue
                 Set-MailboxServer $Server -DatabaseCopyActivationDisabledAndMoveNow $true -Confirm:$False
 
-                write-host "Preventing $Server from auto mounting databases..." -ForegroundColor Blue
+                write-host "`nPreventing $Server from auto mounting databases..." -ForegroundColor Blue
                 Set-MailboxServer $Server -DatabaseCopyAutoActivationPolicy Blocked -Confirm:$False
             }
         else
             {
-                Write-Host "$Server is not a DAG member. Continuing..." -ForegroundColor Orange
+                Write-Host "`n`n$Server is not a DAG member. Continuing...`n`n" -ForegroundColor Orange
             }
 
-    Write-Host "Placing $Server in maintenance mode..." -ForegroundColor Blue
+    Write-Host "`n`nPlacing $Server in maintenance mode..." -ForegroundColor Blue
     Set-ServerComponentState $Server -Component ServerWideOffline -State Inactive -Requester Maintenance
 
-    Write-Host "$Server has been successfully put in maintenance mode. " -ForegroundColor Green
+    Write-Host "`n`n$Server has been successfully put in maintenance mode.`n`n" -ForegroundColor Green
 
 }
 elseif ($Action -eq "remove") 
@@ -77,31 +77,31 @@ elseif ($Action -eq "remove")
     $check = get-mailboxserver | fl DatabaseAvailabilityGroup
         if ($check -ne $null)
             {
-                write-host "$Server is a DAG Member. Performing DAG maintenance mode removal proceedure..." -ForegroundColor Blue
+                write-host "`n$Server is a DAG member. Performing maintenance mode removal proceedure for DAG member..." -ForegroundColor Yellow
                 
-                write-host "Resuming cluster node..." -ForegroundColor Blue
+                write-host "`nResuming cluster node..." -ForegroundColor Blue
                 resume-clusternode $Server
 
-                write-host "Allowing database copy activation..." -ForegroundColor Blue
+                write-host "`nAllowing database copy activation..." -ForegroundColor Blue
                 Set-MailboxServer $Server -DatabaseCopyActivationDisabledAndMoveNow $False -Confirm:$False
 
-                write-host "Enabling DAG auto activation..." -ForegroundColor Blue
+                write-host "`nEnabling DAG auto activation..." -ForegroundColor Blue
                 Set-MailboxServer $Server -DatabaseCopyAutoActivationPolicy Unrestricted -Confirm:$False
             }
         else
             {
-                Write-Host "$Server is not a DAG member. Continuing..." -ForegroundColor Orange
+                Write-Host "`n`n$Server is not a DAG member. Continuing...`n`n" -ForegroundColor Orange
             }
     
-    Write-Host "Activating HubTransport..." -ForegroundColor Blue
+    Write-Host "`n`nActivating HubTransport..." -ForegroundColor Blue
     Set-ServerComponentState $Server -Component HubTransport -State Active -Requester Maintenance
     
-    write-host "Restarting MSExchangeTransport service..." -ForegroundColor Blue
+    write-host "`nRestarting MSExchangeTransport service..." -ForegroundColor Blue
     Restart-Service MSExchangeTransport
-    write-host "Restarting MSExchangeFrontEndTransport service..." -ForegroundColor Blue
+    write-host "`nRestarting MSExchangeFrontEndTransport service..." -ForegroundColor Blue
     Restart-Service MSExchangeFrontEndTransport
     
-    Write-Host "$Server has been removed from maintenance mode." -ForegroundColor Green
+    Write-Host "`n`n$Server has been removed from maintenance mode.`n`n" -ForegroundColor Green
 }   
 else 
 {
