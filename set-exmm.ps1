@@ -71,8 +71,38 @@ if ($Action -eq "add")
 }
 elseif ($Action -eq "remove") 
 {
-    write-host "$Server will be removed from maintenance mode. Please wait..."    
-}
+    write-host "$Server will be removed from maintenance mode. Please wait..."
+    Set-ServerComponentState $Server -Component ServerWideOffline -State Active -Requester Maintenance
+
+    $check = get-mailboxserver | fl DatabaseAvailabilityGroup
+        if ($check -ne $null)
+            {
+                write-host "$Server is a DAG Member. Performing DAG maintenance mode removal proceedure..."
+                
+                write-host "Resuming cluster node..."
+                resume-clusternode $Server
+
+                write-host "Allowing database copy activation..."
+                Set-MailboxServer $Server -DatabaseCopyActivationDisabledAndMoveNow $False -Confirm:$False
+
+                write-host "Enabling DAG auto activation..."
+                Set-MailboxServer $Server -DatabaseCopyAutoActivationPolicy Unrestricted -Confirm:$False
+            }
+        else
+            {
+                Write-Host "$Server is not a DAG member. Continuing..."
+            }
+    
+    Write-Host "Activating HubTransport..."
+    Set-ServerComponentState $Server -Component HubTransport -State Active -Requester Maintenance
+    
+    write-host "Restarting MSExchangeTransport service..."
+    Restart-Service MSExchangeTransport
+    write-host "Restarting MSExchangeFrontEndTransport service..."
+    Restart-Service MSExchangeFrontEndTransport
+    
+    Write-Hoste "$Server has been removed from maintenance mode."
+}   
 else 
 {
     write-host "Please inster a valid paramater for -Action."    
