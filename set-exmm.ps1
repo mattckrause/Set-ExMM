@@ -31,7 +31,42 @@ param(
 
 if ($Action -eq "add") 
 {
-    write-host "$Server will be put into maintenance mode. Please wait..."    
+    write-host "$Server will be put into maintenance mode. Please wait..."
+
+    write-host "Setting HubTransport service to draining.."
+    set-servercomponentstate $Server -Component HubTransport -State Draining -Requester maintenance
+
+    write-host "Restarting Transport services..."
+    Restart-Service MSExchangeTransport
+    Restart-Service MSExchangeFrontEndTransport
+
+    $moveTo = Read=Host "Enter a FQDN server name to redirect messages to:"
+    Write-Host "Redirecting messages from $Server to $moveTo..."
+    Redirect-Message -Server $Server -Target $moveTo
+
+    $check = get-mailboxserver | fl DatabaseAvailabilityGroup
+    if ($check -ne $null)
+        {
+            write-host "$Server is a DAG Member. Performing DAG Maintenance Mode proceedure..."
+            write-host "Suspending cluster node..."
+            suspend-clusternode $Server
+
+            write-host "Moving databases to another DAG member..."
+            Set-MailboxServer $Server -DatabaseCopyActivationDisabledAndMoveNow $true
+
+            write-host "Preventing $Server from auto mounting databases..."
+            Set-MailboxServer $Server -DatabaseCopyAutoActivationPolicy Blocked
+        }
+    else {
+        {
+            Write-Host "$Server is not a DAG member. Continuing..."
+        }
+
+    Write-Host "Placing $Server in maintenance mode..."
+    Set-ServerComponentState $Server -Component ServerWideOffline -State Inactive -Requester Maintenance
+
+    Write-Hoste "$Server has been successfully put in maintenance mode."
+    }
 }
 elseif ($Action -eq "remove") 
 {
