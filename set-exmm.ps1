@@ -40,7 +40,7 @@ if ($Action -eq "add")
     Restart-Service MSExchangeTransport
     Restart-Service MSExchangeFrontEndTransport
 
-    $moveTo = Read=Host "Enter a FQDN server name to redirect messages to:"
+    $moveTo = Read-Host "Enter a FQDN server name to redirect messages to:"
     Write-Host "Redirecting messages from $Server to $moveTo..."
     Redirect-Message -Server $Server -Target $moveTo
 
@@ -52,10 +52,10 @@ if ($Action -eq "add")
             suspend-clusternode $Server
 
             write-host "Moving databases to another DAG member..."
-            Set-MailboxServer $Server -DatabaseCopyActivationDisabledAndMoveNow $true
+            Set-MailboxServer $Server -DatabaseCopyActivationDisabledAndMoveNow $true -Confirm:$False
 
             write-host "Preventing $Server from auto mounting databases..."
-            Set-MailboxServer $Server -DatabaseCopyAutoActivationPolicy Blocked
+            Set-MailboxServer $Server -DatabaseCopyAutoActivationPolicy Blocked -Confirm:$False
         }
     else {
         {
@@ -65,7 +65,7 @@ if ($Action -eq "add")
     Write-Host "Placing $Server in maintenance mode..."
     Set-ServerComponentState $Server -Component ServerWideOffline -State Inactive -Requester Maintenance
 
-    Write-Hoste "$Server has been successfully put in maintenance mode."
+    Write-Hoste "$Server has been successfully put in maintenance mode. "
     }
 }
 elseif ($Action -eq "remove") 
