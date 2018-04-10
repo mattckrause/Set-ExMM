@@ -27,7 +27,7 @@
 param(
     [parameter(Position=0,Mandatory=$true,HelpMessage="Server Name")][string]$Server,
     [parameter(Position=1,Mandatory=$true,HelpMessage="add or remove")][string]$Action,
-    [parameter(Position=2,Mandatory=$False,HelpMessage="Remote")][string]$loc
+    [parameter(Position=2,Mandatory=$False,HelpMessage="Remote")][switch]$Remote
      )
 
 
@@ -37,7 +37,7 @@ if ($Action -eq "add")
 
     write-host "`nSetting HubTransport to draining.." -ForegroundColor Blue
     set-servercomponentstate $Server -Component HubTransport -State Draining -Requester maintenance
-        if($loc -eq "remote")
+        if($Remote -eq $True)
             {
                $MSET = get-service -ComputerName $Server -Name MSExchangeTransport
                $MSEfeT = get-service -ComputerName $Server -Name MSExchangeFrontEndTransport
@@ -51,11 +51,15 @@ if ($Action -eq "add")
                $MSEfeT.Refresh()
                $MSEfeT
             }
+        else
+            {
+                write-host "`nRestarting MSExchangeTransport service..." -ForegroundColor Blue
+                Restart-Service MSExchangeTransport
+                write-host "`nRestarting MSExchangeFrontEndTransport service..." -ForegroundColor Blue
+                Restart-Service MSExchangeFrontEndTransport
+            }
 
-    write-host "`nRestarting MSExchangeTransport service..." -ForegroundColor Blue
-    Restart-Service MSExchangeTransport
-    write-host "`nRestarting MSExchangeFrontEndTransport service..." -ForegroundColor Blue
-    Restart-Service MSExchangeFrontEndTransport
+    
 
     $moveTo = Read-Host "`n`nEnter the server name to redirect messages through (FQDN)"
     Write-Host "`nRedirecting messages from $Server to $moveTo..." -ForegroundColor Blue
@@ -112,7 +116,7 @@ elseif ($Action -eq "remove")
     Write-Host "`n`nActivating HubTransport..." -ForegroundColor Blue
     Set-ServerComponentState $Server -Component HubTransport -State Active -Requester Maintenance
     
-        if($loc -eq "remote")
+        if($Remote -eq $True)
             {
                $MSET = get-service -ComputerName $Server -Name MSExchangeTransport
                $MSEfeT = get-service -ComputerName $Server -Name MSExchangeFrontEndTransport
@@ -126,11 +130,15 @@ elseif ($Action -eq "remove")
                $MSEfeT.Refresh()
                $MSEfeT
             }
+        else
+            {
+                write-host "`nRestarting MSExchangeTransport service..." -ForegroundColor Blue
+                Restart-Service MSExchangeTransport
+                write-host "`nRestarting MSExchangeFrontEndTransport service..." -ForegroundColor Blue
+                Restart-Service MSExchangeFrontEndTransport
+            }
 
-    write-host "`nRestarting MSExchangeTransport service..." -ForegroundColor Blue
-    Restart-Service MSExchangeTransport
-    write-host "`nRestarting MSExchangeFrontEndTransport service..." -ForegroundColor Blue
-    Restart-Service MSExchangeFrontEndTransport
+    
     
     Write-Host "`n`n$Server has been removed from maintenance mode.`n`n" -ForegroundColor Green
 }   
