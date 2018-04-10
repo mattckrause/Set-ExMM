@@ -80,7 +80,7 @@ if ($Action -eq "add") #Add Exchange server to MM.
                 }
             else
                 {
-                    Write-Host "`n`n$Server is not a DAG member. Continuing...`n`n" -ForegroundColor Orange
+                    Write-Host "`n`n$Server is not a DAG member. Continuing...`n`n" -ForegroundColor Cyan
                 }
         }
     else
@@ -111,7 +111,7 @@ if ($Action -eq "add") #Add Exchange server to MM.
                 }
             else
                 {
-                    Write-Host "`n`n$Server is not a DAG member. Continuing...`n`n" -ForegroundColor Orange
+                    Write-Host "`n`n$Server is not a DAG member. Continuing...`n`n" -ForegroundColor Cyan
                 }
         }
     #Complete putting the Exchange server in MM.
@@ -144,7 +144,7 @@ elseif ($Action -eq "remove") #Remove Exchange server from MM.
                 }
             else
                 {
-                    Write-Host "`n`n$Server is not a DAG member. Continuing...`n`n" -ForegroundColor Orange
+                    Write-Host "`n`n$Server is not a DAG member. Continuing...`n`n" -ForegroundColor Cyan
                 }
             #Enable HubTranport functionality.
             Write-Host "`n`nActivating HubTransport..." -ForegroundColor Blue
@@ -181,7 +181,7 @@ elseif ($Action -eq "remove") #Remove Exchange server from MM.
                 }
             else
                 {
-                    Write-Host "`n`n$Server is not a DAG member. Continuing...`n`n" -ForegroundColor Orange
+                    Write-Host "`n`n$Server is not a DAG member. Continuing...`n`n" -ForegroundColor Cyan
                 }
             #Enable HubTransport functionality.
             Write-Host "`n`nActivating HubTransport..." -ForegroundColor Blue
