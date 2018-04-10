@@ -36,13 +36,14 @@ if ($Action -eq "add")
     write-host "Setting HubTransport service to draining.."
     set-servercomponentstate $Server -Component HubTransport -State Draining -Requester maintenance
 
-    write-host "Restarting Transport services..."
+    write-host "Restarting MSExchangeTransport service..."
     Restart-Service MSExchangeTransport
+    write-host "Restarting MSExchangeFrontEndTransport service..."
     Restart-Service MSExchangeFrontEndTransport
 
     $moveTo = Read-Host "Enter a FQDN server name to redirect messages to:"
     Write-Host "Redirecting messages from $Server to $moveTo..."
-    Redirect-Message -Server $Server -Target $moveTo
+    Redirect-Message -Server $Server -Target $moveTo -Confirm:$False
 
     $check = get-mailboxserver | fl DatabaseAvailabilityGroup
         if ($check -ne $null)
@@ -65,8 +66,8 @@ if ($Action -eq "add")
     Write-Host "Placing $Server in maintenance mode..."
     Set-ServerComponentState $Server -Component ServerWideOffline -State Inactive -Requester Maintenance
 
-    Write-Hoste "$Server has been successfully put in maintenance mode. "
-    
+    Write-Host "$Server has been successfully put in maintenance mode. "
+
 }
 elseif ($Action -eq "remove") 
 {
