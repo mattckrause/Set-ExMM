@@ -26,8 +26,10 @@
 #Read in parameters
 param(
     [parameter(Position=0,Mandatory=$true,HelpMessage="Server Name")][string]$Server,
-    [parameter(Position=1,Mandatory=$true,HelpMessage="add or remove")][string]$Action
+    [parameter(Position=1,Mandatory=$true,HelpMessage="add or remove")][string]$Action,
+    [parameter(Position=2,Mandatory=$False,HelpMessage="Remote")][string]$loc
      )
+
 
 if ($Action -eq "add") 
 {
@@ -35,6 +37,20 @@ if ($Action -eq "add")
 
     write-host "`nSetting HubTransport to draining.." -ForegroundColor Blue
     set-servercomponentstate $Server -Component HubTransport -State Draining -Requester maintenance
+        if($loc -eq "remote")
+            {
+               $MSET = get-service -ComputerName $Server -Name MSExchangeTransport
+               $MSEfeT = get-service -ComputerName $Server -Name MSExchangeFrontEndTransport
+               Write-Host "`nRestarting MSExchangeTransport service on $Server..."
+               Restart-Service -InputObject $MSET -Verbose
+               $MSET.Refresh()
+               $MSET
+
+               Write-Host "`nRestarting MSExchangeFrontEndTransport service on $Server..."
+               Restart-Service -InputObject $MSEfeT -Verbose
+               $MSEfeT.Refresh()
+               $MSEfeT
+            }
 
     write-host "`nRestarting MSExchangeTransport service..." -ForegroundColor Blue
     Restart-Service MSExchangeTransport
@@ -96,6 +112,21 @@ elseif ($Action -eq "remove")
     Write-Host "`n`nActivating HubTransport..." -ForegroundColor Blue
     Set-ServerComponentState $Server -Component HubTransport -State Active -Requester Maintenance
     
+        if($loc -eq "remote")
+            {
+               $MSET = get-service -ComputerName $Server -Name MSExchangeTransport
+               $MSEfeT = get-service -ComputerName $Server -Name MSExchangeFrontEndTransport
+               Write-Host "`nRestarting MSExchangeTransport service on $Server..."
+               Restart-Service -InputObject $MSET -Verbose
+               $MSET.Refresh()
+               $MSET
+
+               Write-Host "`nRestarting MSExchangeFrontEndTransport service on $Server..."
+               Restart-Service -InputObject $MSEfeT -Verbose
+               $MSEfeT.Refresh()
+               $MSEfeT
+            }
+
     write-host "`nRestarting MSExchangeTransport service..." -ForegroundColor Blue
     Restart-Service MSExchangeTransport
     write-host "`nRestarting MSExchangeFrontEndTransport service..." -ForegroundColor Blue
