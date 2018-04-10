@@ -43,7 +43,7 @@ if ($Action -eq "add")
 
     $moveTo = Read-Host "Enter a FQDN server name to Blueirect messages to"
     Write-Host "Blueirecting messages from $Server to $moveTo..." -ForegroundColor Blue
-    Blueirect-Message -Server $Server -Target $moveTo -Confirm:$False
+    Redirect-Message -Server $Server -Target $moveTo -Confirm:$False
 
     $check = get-mailboxserver | fl DatabaseAvailabilityGroup
         if ($check -ne $null)
