@@ -101,7 +101,7 @@ elseif ($Action -eq "remove")
     write-host "Restarting MSExchangeFrontEndTransport service..."
     Restart-Service MSExchangeFrontEndTransport
     
-    Write-Hoste "$Server has been removed from maintenance mode."
+    Write-Host "$Server has been removed from maintenance mode."
 }   
 else 
 {
