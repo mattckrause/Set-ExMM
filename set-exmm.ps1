@@ -3,7 +3,8 @@
     set-exmm.ps1
     Matt Krause 2017
 
-    This script will place the specified Exchange 2016 server into maintenance mode. It will also let you remove the specified server from maintenance mode once the work has been completed.
+    This script will place the specified Exchange 2016 server into maintenance mode. It will also let you 
+    remove the specified server from maintenance mode once the work has been completed.
 
     .PARAMETER Server
     The server that will be put in MM
