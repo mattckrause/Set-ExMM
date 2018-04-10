@@ -45,28 +45,28 @@ if ($Action -eq "add")
     Redirect-Message -Server $Server -Target $moveTo
 
     $check = get-mailboxserver | fl DatabaseAvailabilityGroup
-    if ($check -ne $null)
-        {
-            write-host "$Server is a DAG Member. Performing DAG Maintenance Mode proceedure..."
-            write-host "Suspending cluster node..."
-            suspend-clusternode $Server
+        if ($check -ne $null)
+            {
+                write-host "$Server is a DAG Member. Performing DAG Maintenance Mode proceedure..."
+                write-host "Suspending cluster node..."
+                suspend-clusternode $Server
 
-            write-host "Moving databases to another DAG member..."
-            Set-MailboxServer $Server -DatabaseCopyActivationDisabledAndMoveNow $true -Confirm:$False
+                write-host "Moving databases to another DAG member..."
+                Set-MailboxServer $Server -DatabaseCopyActivationDisabledAndMoveNow $true -Confirm:$False
 
-            write-host "Preventing $Server from auto mounting databases..."
-            Set-MailboxServer $Server -DatabaseCopyAutoActivationPolicy Blocked -Confirm:$False
-        }
-    else {
-        {
-            Write-Host "$Server is not a DAG member. Continuing..."
-        }
+                write-host "Preventing $Server from auto mounting databases..."
+                Set-MailboxServer $Server -DatabaseCopyAutoActivationPolicy Blocked -Confirm:$False
+            }
+        else
+            {
+                Write-Host "$Server is not a DAG member. Continuing..."
+            }
 
     Write-Host "Placing $Server in maintenance mode..."
     Set-ServerComponentState $Server -Component ServerWideOffline -State Inactive -Requester Maintenance
 
     Write-Hoste "$Server has been successfully put in maintenance mode. "
-    }
+    
 }
 elseif ($Action -eq "remove") 
 {
