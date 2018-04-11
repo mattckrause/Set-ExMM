@@ -64,8 +64,8 @@ if ($Action -eq "add") #Add Exchange server to MM.
             Write-Host "`nRedirecting messages from $Server to $moveTo..." -ForegroundColor Blue
             Redirect-Message -Server $Server -Target $moveTo -Confirm:$False
             #Check if the server is a member of a DAG.
-            $check = get-mailboxserver $Server | format-list DatabaseAvailabilityGroup
-            if ($check.DatabaseAvailabilityGroup -ne $null)
+            $check = get-mailboxserver $Server | Select-Object -ExpandProperty DatabaseAvailabilityGroup
+            if ($check -ne $null)
                 {
                     #Suspend DAG cluster node of a remote Exchange Server.
                     write-host "`n$Server is a DAG Member. Performing DAG maintenance mode proceedure..." -ForegroundColor Yellow
@@ -95,8 +95,8 @@ if ($Action -eq "add") #Add Exchange server to MM.
             Write-Host "`nRedirecting messages from $Server to $moveTo..." -ForegroundColor Blue
             Redirect-Message -Server $Server -Target $moveTo -Confirm:$False
             #Check if the server is a DAG member.
-            $check = get-mailboxserver | format-list DatabaseAvailabilityGroup
-            if ($check.DatabaseAvailabilityGroup -ne $null)
+            $check = get-mailboxserver | Select-Object -ExpandProperty DatabaseAvailabilityGroup
+            if ($check -ne $null)
                 {
                     #Suspend DAG cluster node on local Exchange server.
                     write-host "`n$Server is a DAG Member. Performing DAG maintenance mode proceedure..." -ForegroundColor Yellow
@@ -128,8 +128,8 @@ elseif ($Action -eq "remove") #Remove Exchange server from MM.
     if($Remote -eq $True)
         {
             #Check if the Exchange server is a DAG member.
-            $check = get-mailboxserver $Server | format-list DatabaseAvailabilityGroup
-            if ($check.DatabaseAvailabilityGroup -ne $null)
+            $check = get-mailboxserver $Server | Select-Object -ExpandProperty DatabaseAvailabilityGroup
+            if ($check -ne $null)
                 {
                     #Resume the cluster node remotely.
                     write-host "`n$Server is a DAG member. Performing maintenance mode removal proceedure for DAG member..." -ForegroundColor Yellow
@@ -165,8 +165,8 @@ elseif ($Action -eq "remove") #Remove Exchange server from MM.
     else #Script not run remotely.
         {
             #Check if the Exchange server is a DAG member.
-            $check = get-mailboxserver $Server | format-list DatabaseAvailabilityGroup
-            if ($check.DatabaseAvailabilityGroup -ne $null) #DAG Member
+            $check = get-mailboxserver $Server | Select-Object -ExpandProperty DatabaseAvailabilityGroup
+            if ($check -ne $null) #DAG Member
                 {
                     #Resume DAG cluster node on local server.
                     write-host "`n$Server is a DAG member. Performing maintenance mode removal proceedure for DAG member..." -ForegroundColor Yellow
